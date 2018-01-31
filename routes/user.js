@@ -1,11 +1,4 @@
-var database;
-var UserSchema;
-var UserModel;
-var init = function(db, schema, model){
-    database = db;
-    UserSchema = schema;
-    UserModel=model;
-}
+// process in ROUTE(POST, GET.. etc)
 var login = function(req, res){
     var id = req.body.id;
     var password  = req.body.password;
@@ -13,8 +6,10 @@ var login = function(req, res){
         res.end('NO input ID or Password')
         return;
     }
+    var database = req.app.get('database');
     if(database){
-        Login(database, id, password, function(err, results){
+        var UserModel = req.app.get('database').UserModel;
+        Login(database, id, password, UserModel,function(err, results){
 
             if(err) {throw err;}
             if(results){
@@ -37,13 +32,15 @@ var login = function(req, res){
         return;
     }
 }
+
 var adduser = function(req, res){
     var id = req.body.id;
     var password = req.body.password;
     var name = req.body.name;
-
+    var database = req.app.get('database');
     if(database){
-        addUser(database,id,password,name,function(err){
+        var UserModel = req.app.get('database').UserModel;
+        addUser(database,id,password,name,UserModel,function(err){
             if(err) {throw err}
 
             res.writeHead('200',{'Content-Type':'text/html; charset = utf8'})
@@ -62,13 +59,13 @@ var adduser = function(req, res){
         return;
 
     }
-
 }
 
-var Login = function(database, id, password, callback) {
+//process in DB >>
+var Login = function(database, id, password, UserModel, callback) {
     console.log('login called ')
 
-    UserModel.findById(id, function(err, results) {
+    UserModel.find({'id':id}, function(err, results) {
         if (err) {
             callback(err, null);
             return;
@@ -83,7 +80,7 @@ var Login = function(database, id, password, callback) {
         }
     })
 }
-var addUser = function(database, id, password, name, callback){
+var addUser = function(database, id, password, name, UserModel, callback){
     console.log('AddUser called ')
 
     var user = new UserModel({
@@ -100,6 +97,5 @@ var addUser = function(database, id, password, name, callback){
         callback(null, user);
     })
 }
-module.exports.init = init;
 module.exports.login = login;
 module.exports.adduser = adduser;

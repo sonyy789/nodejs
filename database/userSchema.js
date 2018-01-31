@@ -1,4 +1,3 @@
-var mongoose = require('mongoose')
 var Schema = { }
 Schema.createSchema = function(mongoose){
 
